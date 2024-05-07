@@ -29,6 +29,7 @@ dotnet nuget push .\bin\Release\Mehedi.Write.RDBMS.Infrastructure.Abstractions.1
 ```
 
 ## References
+- [eShop](https://github.com/dotnet/eShop)
 - [Ardalis.SharedKernel](https://github.com/ardalis/Ardalis.SharedKernel)
 - [Clean Architecture Solution Template](https://github.com/jasontaylordev/CleanArchitecture)
 - [ASP.NET Core C# CQRS Event Sourcing, REST API, DDD, SOLID Principles and Clean Architecture](https://github.com/jeangatto/ASP.NET-Core-Clean-Architecture-CQRS-Event-Sourcing)
