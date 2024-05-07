@@ -1,5 +1,5 @@
-[![Nuget](https://img.shields.io/nuget/v/Mehedi.Write.RDBMS.Infrastructure.Abstructions)](https://www.nuget.org/packages/Mehedi.Write.RDBMS.Infrastructure.Abstructions/)
-[![Nuget](https://img.shields.io/nuget/dt/Mehedi.Write.RDBMS.Infrastructure.Abstructions)](https://www.nuget.org/packages/Mehedi.Write.RDBMS.Infrastructure.Abstructions/)
+[![Nuget](https://img.shields.io/nuget/v/Mehedi.Write.RDBMS.Infrastructure.Abstractions)](https://www.nuget.org/packages/Mehedi.Write.RDBMS.Infrastructure.Abstractions/)
+[![Nuget](https://img.shields.io/nuget/dt/Mehedi.Write.RDBMS.Infrastructure.Abstractions)](https://www.nuget.org/packages/Mehedi.Write.RDBMS.Infrastructure.Abstractions/)
 
 # Mehedi.Write.RDBMS.Infrastructure.Abstructions
 Some useful base classes and interfaces, mainly used with the Write RDMS layer inside CleanArchitecture template. 
