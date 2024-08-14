@@ -1,4 +1,4 @@
-name: publish Mehedi.Hangfire.Extensions to nuget
+name: publish Mehedi.Write.RDBMS.Infrastructure.Abstractions to nuget
 on:
   workflow_dispatch:
   push:
