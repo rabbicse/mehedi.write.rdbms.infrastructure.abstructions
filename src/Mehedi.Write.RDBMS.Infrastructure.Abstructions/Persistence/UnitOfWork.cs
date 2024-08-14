@@ -18,9 +18,9 @@ namespace Mehedi.Write.RDBMS.Infrastructure.Abstractions.Persistence;
 /// <param name="logger"></param>
 public class UnitOfWork(
     IWriteDbContext writeDbContext,
-    IEventStoreRepository? eventStoreRepository,
     IMediator mediator,
-    ILogger<UnitOfWork> logger) : IUnitOfWork
+    ILogger<UnitOfWork> logger,
+    IEventStoreRepository? eventStoreRepository = null) : IUnitOfWork
 {
     private readonly IEventStoreRepository? _eventStoreRepository = eventStoreRepository;
     private readonly ILogger<UnitOfWork> _logger = logger;
@@ -162,7 +162,7 @@ public class UnitOfWork(
         if (disposing)
         {
             _writeDbContext.Dispose();
-            _eventStoreRepository.Dispose();
+            _eventStoreRepository?.Dispose();
         }
 
         _disposed = true;
