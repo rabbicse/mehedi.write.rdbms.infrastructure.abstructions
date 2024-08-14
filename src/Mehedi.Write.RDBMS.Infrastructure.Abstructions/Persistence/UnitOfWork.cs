@@ -18,11 +18,11 @@ namespace Mehedi.Write.RDBMS.Infrastructure.Abstractions.Persistence;
 /// <param name="logger"></param>
 public class UnitOfWork(
     IWriteDbContext writeDbContext,
-    IEventStoreRepository eventStoreRepository,
+    IEventStoreRepository? eventStoreRepository,
     IMediator mediator,
     ILogger<UnitOfWork> logger) : IUnitOfWork
 {
-    private readonly IEventStoreRepository _eventStoreRepository = eventStoreRepository;
+    private readonly IEventStoreRepository? _eventStoreRepository = eventStoreRepository;
     private readonly ILogger<UnitOfWork> _logger = logger;
     private readonly IMediator _mediator = mediator;
     private readonly IWriteDbContext _writeDbContext = writeDbContext;
@@ -130,7 +130,10 @@ public class UnitOfWork(
         await Task.WhenAll(tasks);
 
         // Store the event stores using _eventStoreRepository.
-        await _eventStoreRepository.StoreAsync(eventStores);
+        if (_eventStoreRepository != null)
+        {
+            await _eventStoreRepository.StoreAsync(eventStores);
+        }
     }
     #endregion
 

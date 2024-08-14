@@ -5,6 +5,10 @@ VisualStudioVersion = 17.9.34616.47
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Mehedi.Write.RDBMS.Infrastructure.Abstractions", "src\Mehedi.Write.RDBMS.Infrastructure.Abstructions\Mehedi.Write.RDBMS.Infrastructure.Abstractions.csproj", "{B4CE1F91-D7BF-48E7-9E09-513D760B55D5}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{F2841A7A-75AA-44B4-985E-4ED32B97AD9B}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{CE7E8764-DA50-4ED4-AA7C-E95BDF2D2FFA}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -18,6 +22,9 @@ Global
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{B4CE1F91-D7BF-48E7-9E09-513D760B55D5} = {F2841A7A-75AA-44B4-985E-4ED32B97AD9B}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {5540B8F4-3CB6-4FC0-AEAA-138BB23978B1}
