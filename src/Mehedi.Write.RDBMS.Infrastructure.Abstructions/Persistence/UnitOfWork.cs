@@ -9,6 +9,11 @@ using System.Data;
 
 namespace Mehedi.Write.RDBMS.Infrastructure.Abstractions.Persistence;
 
+#pragma warning disable S2139 // Exceptions should be either logged or rethrown but not both
+#pragma warning disable CA1848 // Use the LoggerMessage delegates
+#pragma warning disable CA2254 // Template should be a static expression
+#pragma warning disable CS8600 // Converting null literal or possible null value to non-nullable type.
+#pragma warning disable S2629 // Logging templates should be constant
 /// <summary>
 /// UnitOfWork will be used to save all pending transactions to RDBMS databases
 /// </summary>
@@ -16,7 +21,9 @@ namespace Mehedi.Write.RDBMS.Infrastructure.Abstractions.Persistence;
 /// <param name="eventStoreRepository"></param>
 /// <param name="mediator"></param>
 /// <param name="logger"></param>
+#pragma warning disable S3881 // "IDisposable" should be implemented correctly
 public class UnitOfWork(
+#pragma warning restore S3881 // "IDisposable" should be implemented correctly
     IWriteDbContext writeDbContext,
     IMediator mediator,
     ILogger<UnitOfWork> logger,
@@ -35,15 +42,32 @@ public class UnitOfWork(
     /// <returns></returns>
     public async Task<bool> SaveChangesAsync(CancellationToken cancellationToken = default)
     {
-        var dbContext = (_writeDbContext as DbContext);
+        if (_writeDbContext is not DbContext dbContext)
+        {
+            throw new InvalidOperationException("WriteDbContext is not a valid DbContext.");
+        }
+
         // Creating the execution strategy (Connection resiliency and database retries).
-        var strategy = dbContext?.Database.CreateExecutionStrategy();
+        var strategy = dbContext?.Database.CreateExecutionStrategy()
+            ?? throw new InvalidOperationException("Database execution strategy could not be created");
 
         // Executing the strategy.
         return await strategy.ExecuteAsync(async () =>
         {
-            await using var transaction = await dbContext.Database.BeginTransactionAsync(IsolationLevel.ReadCommitted, cancellationToken);
-            _logger.LogInformation($"Begin transaction: '{transaction.TransactionId}'");
+            if (dbContext?.Database == null)
+            {
+                throw new InvalidOperationException("Database access is not available");
+            }
+
+            // First await the transaction creation with ConfigureAwait
+            var transaction = await dbContext.Database
+                .BeginTransactionAsync(IsolationLevel.ReadCommitted, cancellationToken)
+                .ConfigureAwait(false);
+
+            // Then handle disposal with ConfigureAwait
+            await using var _ = transaction.ConfigureAwait(false);
+
+            _logger.LogInformation(message: $"Begin transaction: '{transaction.TransactionId}'");
 
             try
             {
@@ -51,28 +75,28 @@ public class UnitOfWork(
                 var (domainEvents, eventStores) = BeforeSaveChanges();
 
                 // Save transactions to RDBMS database
-                var rowsAffected = await dbContext.SaveChangesAsync(cancellationToken);
+                var rowsAffected = await dbContext.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
 
                 _logger.LogInformation($"Commit transaction: '{transaction.TransactionId}'");
 
                 // Commit transactions
-                await transaction.CommitAsync();
+                await transaction.CommitAsync().ConfigureAwait(false);
 
                 // Triggering the events and saving the stores.
-                await AfterSaveChangesAsync(domainEvents, eventStores);
+                await AfterSaveChangesAsync(domainEvents, eventStores).ConfigureAwait(false);
 
                 _logger.LogInformation($"Transaction successfully confirmed: '{transaction.TransactionId}', Rows Affected: {rowsAffected}");
-                return await Task.FromResult(true);
+                return await Task.FromResult(true).ConfigureAwait(false);
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, $"An unexpected exception occurred while committing the transaction: '{transaction.TransactionId}', message: {ex.Message}");
+                _logger.LogError(ex, "An unexpected exception occurred while committing the transaction: '{TransactionId}'", transaction.TransactionId);
 
-                await transaction.RollbackAsync();
+                await transaction.RollbackAsync().ConfigureAwait(false);
 
                 throw;
             }
-        });
+        }).ConfigureAwait(false);
     }
     #endregion
 
@@ -83,25 +107,34 @@ public class UnitOfWork(
     /// <returns>A tuple containing the list of domain events and event stores.</returns>
     private (IReadOnlyList<BaseDomainEvent> domainEvents, IReadOnlyList<EventStoreEvent> eventStores) BeforeSaveChanges()
     {
-        var dbContext = (_writeDbContext as DbContext);
+        if (_writeDbContext is not DbContext dbContext)
+        {
+            throw new InvalidOperationException("WriteDbContext is not a valid DbContext.");
+        }
         // Get all domain entities with pending domain events
-        var domainEntities = dbContext
-            .ChangeTracker
-            .Entries<BaseEntity>()
-            .Where(entry => entry.Entity.DomainEvents.Any())
+        var domainEntities = dbContext.ChangeTracker
+            .Entries<BaseEntity>()  // Use generic version to ensure type safety
+            .Where(entry =>
+                entry.Entity != null &&
+                entry.Entity.DomainEvents != null &&
+                entry.Entity.DomainEvents.Any())
+            .Select(entry => entry.Entity)
             .ToList();
 
         // Get all domain events from the domain entities
         var domainEvents = domainEntities
-            .SelectMany(entry => entry.Entity.DomainEvents)
+            .SelectMany(entry => entry.DomainEvents)
             .ToList();
 
         // Convert domain events to event stores
         var eventStores = domainEvents
-            .ConvertAll(@event => new EventStoreEvent(@event.AggregateId, @event.GetGenericTypeName(), @event.ToJson()));
+            .ConvertAll(@event => new EventStoreEvent(
+                @event.AggregateId,
+                @event.GetGenericTypeName(),
+                @event.ToJson()!));
 
         // Clear domain events from the entities
-        domainEntities.ForEach(entry => entry.Entity.ClearDomainEvents());
+        domainEntities.ForEach(entry => entry.ClearDomainEvents());
 
         return (domainEvents.AsReadOnly(), eventStores.AsReadOnly());
     }
@@ -127,12 +160,12 @@ public class UnitOfWork(
             .ToList();
 
         // Wait for all the published events to be processed.
-        await Task.WhenAll(tasks);
+        await Task.WhenAll(tasks).ConfigureAwait(false);
 
         // Store the event stores using _eventStoreRepository.
         if (_eventStoreRepository != null)
         {
-            await _eventStoreRepository.StoreAsync(eventStores);
+            await _eventStoreRepository.StoreAsync(eventStores).ConfigureAwait(false);
         }
     }
     #endregion
@@ -152,8 +185,11 @@ public class UnitOfWork(
         GC.SuppressFinalize(this);
     }
 
-    // Protected implementation of Dispose pattern.
-    private void Dispose(bool disposing)
+    /// <summary>
+    /// Protected implementation of Dispose pattern
+    /// </summary>
+    /// <param name="disposing">True if called from Dispose(), false if called from finalizer</param>
+    protected virtual void Dispose(bool disposing)
     {
         if (_disposed)
             return;
@@ -161,11 +197,19 @@ public class UnitOfWork(
         // Dispose managed state (managed objects).
         if (disposing)
         {
-            _writeDbContext.Dispose();
-            _eventStoreRepository?.Dispose();
+            _writeDbContext?.Dispose();
+            if (_eventStoreRepository is IDisposable eventStoreDisposable)
+            {
+                eventStoreDisposable.Dispose();
+            }
         }
 
         _disposed = true;
     }
     #endregion
 }
+#pragma warning restore CS8600 // Converting null literal or possible null value to non-nullable type.
+#pragma warning restore CA2254 // Template should be a static expression
+#pragma warning restore CA1848 // Use the LoggerMessage delegates
+#pragma warning restore S2629 // Logging templates should be constant
+#pragma warning restore S2139 // Exceptions should be either logged or rethrown but not both

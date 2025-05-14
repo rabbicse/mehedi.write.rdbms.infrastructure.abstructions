@@ -11,7 +11,7 @@ namespace Mehedi.Write.RDBMS.Infrastructure.Abstractions.Repositories;
 /// <typeparam name="TEntity"></typeparam>
 /// <typeparam name="TKey"></typeparam>
 /// <param name="dbContext"></param>
-public abstract class CommandRepository<TEntity, TKey>(IWriteDbContext dbContext) : IDisposable, ICommandRepository<TEntity, TKey>
+public abstract class CommandRepository<TEntity, TKey>(IWriteDbContext dbContext) : ICommandRepository<TEntity, TKey>
     where TEntity : class, IEntity<TKey>
     where TKey : IEquatable<TKey>
 {
@@ -29,10 +29,9 @@ public abstract class CommandRepository<TEntity, TKey>(IWriteDbContext dbContext
     /// <exception cref="InvalidOperationException"></exception>
     public async Task<TEntity> AddAsync(TEntity entity)
     {
-        if (entity == null)
-            throw new ArgumentNullException(nameof(entity));
+        ArgumentNullException.ThrowIfNull(entity);
 
-        var result = await DbSet.AddAsync(entity);
+        var result = await DbSet.AddAsync(entity).ConfigureAwait(false);
         if (result.State != EntityState.Added)
             throw new InvalidOperationException($"{nameof(entity)} didn't added!");
 
@@ -47,9 +46,8 @@ public abstract class CommandRepository<TEntity, TKey>(IWriteDbContext dbContext
     /// <exception cref="ArgumentNullException"></exception>
     public async Task<IEnumerable<TEntity>> AddAsync(IEnumerable<TEntity> entity)
     {
-        if (entity == null)
-            throw new ArgumentNullException(nameof(entity));
-        await DbSet.AddRangeAsync(entity);
+        ArgumentNullException.ThrowIfNull(entity);
+        await DbSet.AddRangeAsync(entity).ConfigureAwait(false);
         return entity;
     }
 
@@ -61,10 +59,9 @@ public abstract class CommandRepository<TEntity, TKey>(IWriteDbContext dbContext
     /// <exception cref="ArgumentNullException"></exception>
     public async Task<TEntity> UpdateAsync(TEntity entity)
     {
-        if (entity == null)
-            throw new ArgumentNullException(nameof(entity));
+        ArgumentNullException.ThrowIfNull(entity);
         DbSet.Update(entity);
-        await Task.CompletedTask;
+        await Task.CompletedTask.ConfigureAwait(false);
         return entity;
     }
 
@@ -76,10 +73,9 @@ public abstract class CommandRepository<TEntity, TKey>(IWriteDbContext dbContext
     /// <exception cref="ArgumentNullException"></exception>
     public async Task<IEnumerable<TEntity>> UpdateAsync(IEnumerable<TEntity> entity)
     {
-        if (entity == null)
-            throw new ArgumentNullException(nameof(entity));
+        ArgumentNullException.ThrowIfNull(entity);
         DbSet.UpdateRange(entity);
-        await Task.CompletedTask;
+        await Task.CompletedTask.ConfigureAwait(false);
         return entity;
     }
     /// <summary>
@@ -90,10 +86,9 @@ public abstract class CommandRepository<TEntity, TKey>(IWriteDbContext dbContext
     /// <exception cref="ArgumentNullException"></exception>
     public async Task DeleteAsync(TEntity entity)
     {
-        if (entity == null)
-            throw new ArgumentNullException(nameof(entity));
+        ArgumentNullException.ThrowIfNull(entity);
         DbSet.Remove(entity);
-        await Task.CompletedTask;
+        await Task.CompletedTask.ConfigureAwait(false);
     }
     /// <summary>
     /// Delete entities in batch
@@ -103,15 +98,10 @@ public abstract class CommandRepository<TEntity, TKey>(IWriteDbContext dbContext
     /// <exception cref="ArgumentNullException"></exception>
     public async Task DeleteAsync(IEnumerable<TEntity> entity)
     {
-        if (entity != null)
-        {
-            DbSet.RemoveRange(entity);
-            await Task.CompletedTask;
-        }
-        else
-        {
-            throw new ArgumentNullException(nameof(entity));
-        }
+        ArgumentNullException.ThrowIfNull(entity);
+
+        DbSet.RemoveRange(entity);
+        await Task.CompletedTask.ConfigureAwait(false);
     }
     /// <summary>
     /// Delete entity by id
@@ -121,18 +111,12 @@ public abstract class CommandRepository<TEntity, TKey>(IWriteDbContext dbContext
     /// <exception cref="ArgumentNullException"></exception>
     public async Task<TEntity> DeleteByIdAsync(TKey id)
     {
-        if (id == null)
-        {
-            throw new ArgumentNullException(nameof(id));
-        }
-        var data = await DbSet.FindAsync(id);
-        if (data == null)
-        {
-            throw new ArgumentNullException(nameof(data));
-        }
+        ArgumentNullException.ThrowIfNull(id);
+        var data = await DbSet.FindAsync(id).ConfigureAwait(false);
+        ArgumentNullException.ThrowIfNull(data);
+
         DbSet.Remove(data);
-        // TODO: need optimization later
-        await Task.CompletedTask;
+        await Task.CompletedTask.ConfigureAwait(false);
         return data;
     }
     /// <summary>
@@ -142,8 +126,10 @@ public abstract class CommandRepository<TEntity, TKey>(IWriteDbContext dbContext
     /// <returns></returns>
     public async Task<TEntity> GetByIdAsync(TKey id)
     {
+#pragma warning disable CS8603 // Possible null reference return.
         return await DbSet.AsNoTrackingWithIdentityResolution()
-            .FirstOrDefaultAsync(entity => entity.Id.Equals(id));
+            .FirstOrDefaultAsync(entity => entity.Id.Equals(id)).ConfigureAwait(false);
+#pragma warning restore CS8603 // Possible null reference return.
     }
     /// <summary>
     /// Get entities by expression
@@ -153,12 +139,14 @@ public abstract class CommandRepository<TEntity, TKey>(IWriteDbContext dbContext
     /// <exception cref="NotImplementedException"></exception>
     public async Task<IReadOnlyList<TEntity>> GetAsync(Expression<Func<TEntity, bool>> predicate)
     {
-        return await DbSet.Where(predicate).ToListAsync();
+        return await DbSet.Where(predicate).ToListAsync().ConfigureAwait(false);
     }
     #endregion
 
     #region IDisposable
+#pragma warning disable CA1805 // Do not initialize unnecessarily
     private bool _disposed = false;
+#pragma warning restore CA1805 // Do not initialize unnecessarily
     protected virtual void Dispose(bool disposing)
     {
         if (_disposed) return;
