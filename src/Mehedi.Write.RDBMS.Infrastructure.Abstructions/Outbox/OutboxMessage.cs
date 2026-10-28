@@ -4,7 +4,7 @@ using System.Text.Json;
 namespace Mehedi.Write.RDBMS.Infrastructure.Abstractions.Outbox;
 
 /// <summary>
-/// An integration event stored in the write database, in the same transaction as the change that raised it,
+/// An integration event stored in the write database (see <see cref="IIntegrationEventOutbox"/>), in the same transaction as the change that raised it,
 /// until <see cref="OutboxDispatcher{TDbContext}"/> has published it.
 /// </summary>
 public sealed class OutboxMessage

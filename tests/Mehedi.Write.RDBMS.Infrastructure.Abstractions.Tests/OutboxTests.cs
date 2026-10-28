@@ -1,3 +1,4 @@
+using Mehedi.EventBus;
 using Mehedi.Write.RDBMS.Infrastructure.Abstractions.Outbox;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;

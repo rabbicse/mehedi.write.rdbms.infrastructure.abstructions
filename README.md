@@ -26,7 +26,8 @@ services.AddIntegrationEventOutbox<OrderingDbContext>(options =>
     options.MaxAttempts = 10;
 });
 
-// 3. In a command handler: add the event, then save. Both commit together, or neither does.
+// 3. In a command handler (inject Mehedi.EventBus.IIntegrationEventOutbox): add the event, then save.
+//    Both commit together, or neither does.
 outbox.Add(new OrderPlacedEvent(order.Id, order.CustomerId, order.Total));
 await unitOfWork.SaveChangesAsync(cancellationToken);
 ```
@@ -49,7 +50,7 @@ How the dispatcher behaves:
 - Mehedi.Core.SharedKernel (>= 1.0.0)
 - Microsoft.EntityFrameworkCore (>= 8.0.3)
 - Microsoft.EntityFrameworkCore.Relational (>= 8.0.3)
-- Mehedi.EventBus.Abstractions (>= 1.0.1)
+- Mehedi.EventBus.Abstractions (>= 1.1.1)
 - Microsoft.Extensions.Hosting.Abstractions (>= 9.0.4)
 
 ## Packaging

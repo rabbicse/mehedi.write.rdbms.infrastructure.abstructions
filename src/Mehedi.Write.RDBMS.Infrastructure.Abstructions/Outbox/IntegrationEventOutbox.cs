@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore;
 namespace Mehedi.Write.RDBMS.Infrastructure.Abstractions.Outbox;
 
 /// <summary>
-/// <see cref="IIntegrationEventOutbox"/> that adds <see cref="OutboxMessage"/> rows to the scoped write context,
+/// <see cref="Mehedi.EventBus.IIntegrationEventOutbox"/> that adds <see cref="OutboxMessage"/> rows to the scoped write context,
 /// so they share its transaction.
 /// </summary>
 public sealed class IntegrationEventOutbox : IIntegrationEventOutbox
