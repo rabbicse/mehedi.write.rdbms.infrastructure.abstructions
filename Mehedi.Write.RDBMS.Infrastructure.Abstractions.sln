@@ -16,12 +16,18 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		Directory.Packages.props = Directory.Packages.props
 	EndProjectSection
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Mehedi.Write.RDBMS.Infrastructure.Abstractions.Tests", "tests\Mehedi.Write.RDBMS.Infrastructure.Abstractions.Tests\Mehedi.Write.RDBMS.Infrastructure.Abstractions.Tests.csproj", "{CD408E86-14D8-4CA0-963C-2171624065E9}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{CD408E86-14D8-4CA0-963C-2171624065E9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CD408E86-14D8-4CA0-963C-2171624065E9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CD408E86-14D8-4CA0-963C-2171624065E9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CD408E86-14D8-4CA0-963C-2171624065E9}.Release|Any CPU.Build.0 = Release|Any CPU
 		{B4CE1F91-D7BF-48E7-9E09-513D760B55D5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{B4CE1F91-D7BF-48E7-9E09-513D760B55D5}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{B4CE1F91-D7BF-48E7-9E09-513D760B55D5}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -31,6 +37,7 @@ Global
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
+		{CD408E86-14D8-4CA0-963C-2171624065E9} = {CE7E8764-DA50-4ED4-AA7C-E95BDF2D2FFA}
 		{B4CE1F91-D7BF-48E7-9E09-513D760B55D5} = {F2841A7A-75AA-44B4-985E-4ED32B97AD9B}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
