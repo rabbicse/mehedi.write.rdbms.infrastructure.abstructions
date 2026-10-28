@@ -1,9 +1,9 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <Version>1.0.6</Version>
+    <Version>1.1.0</Version>
     <Authors>Md Mehedi Hasan</Authors>
-    <Description>Some useful base classes and interfaces, mainly used with the Write RDMS layer inside CleanArchitecture template. </Description>
+    <Description>Base classes for the write (RDBMS, EF Core) side of a Clean Architecture service: a generic command repository, a unit of work that dispatches domain events, and a transactional outbox for integration events.</Description>
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <RepositoryUrl>https://github.com/rabbicse/mehedi.write.rdbms.infrastructure.abstructions</RepositoryUrl>
   </PropertyGroup>
@@ -18,6 +18,9 @@
   <ItemGroup>
     <PackageReference Include="Mehedi.Application.SharedKernel" />
     <PackageReference Include="Mehedi.Core.SharedKernel" />
+    <PackageReference Include="Mehedi.EventBus.Abstractions" />
+    <PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" />
+    <PackageReference Include="Microsoft.Extensions.Options" />
     <PackageReference Include="Microsoft.EntityFrameworkCore" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Relational" />
   </ItemGroup>
